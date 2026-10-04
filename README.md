@@ -15,8 +15,6 @@ Or inside a session: `/plugin marketplace add stonekey908/process-over-prompts`,
 
 Skills are namespaced as `/process-over-prompts:sprint` and so on, but Claude Code also accepts the short form (`/sprint`) whenever the name is unambiguous. Update later with `claude plugin update process-over-prompts`.
 
-Prefer plain files? `./install.sh` copies the skills into `~/.claude/skills` and the capture script into `~/.claude/scripts`. It does not touch your `~/.claude/CLAUDE.md` or `settings.json`.
-
 ## What you get
 
 Ten skills covering the product development lifecycle:
@@ -121,7 +119,6 @@ The `stat` call tries the GNU form first and falls back to the BSD form, so the 
 skills/<name>/SKILL.md            ← the ten skills
 policy/POLICY.md                  ← starting rules for your own CLAUDE.md
 scripts/retro-capture.py          ← friction capture, run by /session-end and /retro
-install.sh                        ← plain-files installer (optional)
 tests/                            ← regression tests for retro-capture.py
 ```
 
