@@ -1,0 +1,22 @@
+{
+  "name": "stonekey908",
+  "description": "Process Over Prompts: a governance workflow for Claude Code (skills only).",
+  "owner": {
+    "name": "Nick Elias",
+    "url": "https://github.com/stonekey908"
+  },
+  "plugins": [
+    {
+      "name": "process-over-prompts",
+      "source": "./",
+      "description": "Governance workflow skills: /session-start, /requirements, /design-first, /ux-design, /sprint, /automate, /uat, /session-end, /retro, /guide, plus the friction-capture memory loop.",
+      "category": "workflow",
+      "tags": [
+        "workflow",
+        "governance",
+        "retro",
+        "linear"
+      ]
+    }
+  ]
+}

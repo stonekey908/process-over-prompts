@@ -1,0 +1,22 @@
+{
+  "name": "process-over-prompts",
+  "displayName": "Process Over Prompts",
+  "version": "1.0.0",
+  "description": "Governance workflow for Claude Code: session-start/end handoffs, requirements, design-first, sprint, UAT, and a self-improving /retro memory loop that captures per-session friction and consolidates it into global learned rules.",
+  "author": {
+    "name": "Nick Elias",
+    "url": "https://github.com/stonekey908"
+  },
+  "homepage": "https://github.com/stonekey908/process-over-prompts",
+  "repository": "https://github.com/stonekey908/process-over-prompts",
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "governance",
+    "retro",
+    "session-handoff",
+    "linear",
+    "uat",
+    "memory"
+  ]
+}

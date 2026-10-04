@@ -1,8 +1,13 @@
-# UX Design
-
-Design intuitive user experiences for information-dense applications. Use when building screens, flows, navigation, or interactions where users must find, follow, and act on complex structured information without losing context.
-
 ---
+name: ux-design
+description: Design intuitive user experiences for information-dense applications. Use when building screens, flows, navigation, or interactions where users must find, follow, and act on complex structured information without losing context. Complements frontend-design — this handles HOW users think and navigate; frontend-design handles HOW things look.
+---
+
+# UX Design Skill
+
+Every screen, flow, and interaction must be intuitive enough that a stressed, time-poor user can find what they need, understand it, and act on it — without training, without losing context, and without the app hiding or breaking anything.
+
+Before writing any code, apply the framework below to decide what to show, when to show it, and how users move through it.
 
 ## Core Philosophy: Nothing Hidden, Nothing Overwhelming
 
@@ -70,7 +75,7 @@ Users aren't reading — they're scanning for the flag, the gap, the exception.
 
 Different users navigate differently. Never force a single path.
 
-**Search:** Accessible from every screen (persistent or via keyboard shortcut). Intelligent (natural language, exact titles, IDs, partials). Results grouped by type with match highlighted.
+**Search:** Accessible from every screen (persistent or via Cmd+K). Intelligent (natural language, exact titles, IDs, partials). Results grouped by type with match highlighted.
 
 **Browse:** Category/section browsing coexists with search — both first-class. Nav structure visible, not behind hamburger menus.
 
@@ -145,3 +150,13 @@ If any answer is no, redesign.
 4. Ensure multiple navigation paths — search, browse, recents, deep link, cross-references
 5. Verify zero-surprise interactions — every tap does what the user expects
 6. Run the "4-Minute User" test
+
+Then apply `frontend-design` to make it visually excellent.
+
+### With `/design-first` (Vertical Slices)
+
+When paired with `/design-first`, apply this framework **per slice**, not all at once:
+
+- **Core flow slice:** Map Layer 0/1/2 for the core journey. Get the UX right for the most important path first. The progressive disclosure layers also inform your data model — what needs to be on Layer 0 tells you what the API should return eagerly vs lazily.
+- **Each broadening slice:** Apply the same principles as you add screens. Check that new screens maintain context preservation with existing ones (breadcrumbs, back navigation, state persistence).
+- Don't try to map progressive disclosure for 20 screens before building anything. Map it for the screens you're building NOW.

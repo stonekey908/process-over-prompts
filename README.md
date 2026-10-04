@@ -1,81 +1,134 @@
 # Process Over Prompts
 
-A governance framework for AI coding agents — structured as four layers borrowed from enterprise IT governance.
+A governance workflow for Claude Code, built from analysing real coding sessions and quantifying what went wrong. Agents don't replace process; they need it more than humans do.
 
-## What This Is
+This plugin is skills only. It installs no hooks, no MCP servers, and changes no settings.
 
-A ready-to-use set of skills and rules for AI-assisted development, structured as four governance layers:
+## Install
 
-| Layer | What it does | How it works |
-|-------|-------------|-------------|
-| **Policy** | Rules the agent follows every session | A persistent instruction file that loads automatically at session start |
-| **Procedures** | Step-by-step workflows for defined tasks | Skill documents you invoke when needed |
-| **Controls** | Quality gates that catch mistakes | Checks that run before every commit |
-| **Segregation of Duties** | Agent proposes, human approves | Built into every skill at key decision points |
+```bash
+claude plugin marketplace add stonekey908/process-over-prompts
+claude plugin install process-over-prompts@stonekey908
+```
 
-## The Skills
+Or inside a session: `/plugin marketplace add stonekey908/process-over-prompts`, then `/plugin install process-over-prompts`.
 
-Seven skills covering the full product development lifecycle:
+Skills are namespaced as `/process-over-prompts:sprint` and so on, but Claude Code also accepts the short form (`/sprint`) whenever the name is unambiguous. Update later with `claude plugin update process-over-prompts`.
+
+Prefer plain files? `./install.sh` copies the skills into `~/.claude/skills` and the capture script into `~/.claude/scripts`. It does not touch your `~/.claude/CLAUDE.md` or `settings.json`.
+
+## What you get
+
+Ten skills covering the product development lifecycle:
 
 | Skill | What it does |
 |-------|-------------|
-| **Requirements** | Takes a vague idea → researches feasibility → creates a well-structured ticket with testable acceptance criteria |
-| **Sprint** | Full ticket workflow: pre-flight → pickup → research & plan (with your approval) → implement → quality gate & commit → UAT → merge. Supports single-ticket and batch modes. |
-| **UAT & Triage** | Structured testing report (what was verified, what you can test, what's blocked), then proper triage: bug, new feature, or docs gap? Bugs get fixed. Features go to backlog. No scope creep. |
-| **Design-First** | Wireframe with real components → get a clickable prototype → lock the design → implement against it. The wireframe is the source of truth. |
-| **UX Design** | UX framework for information-dense apps: progressive disclosure, persistent context, scannable structure, forgiving navigation, zero-surprise interactions |
-| **Session End** | Clean wrap-up: commit, push, update handoff docs, update tickets. Never end with uncommitted work or stale documentation. |
-| **Retrospective** | Reviews recent session friction against current skills and rules. Proposes specific improvements. You approve each change. |
+| `guide` | Quick-start to the workflow. Start here if unsure which skill to use. |
+| `session-start` | Reads the CLAUDE.md handoff notes, checks git state, surfaces active Linear tickets |
+| `requirements` | Turns a vague idea into a ticket with testable acceptance criteria |
+| `design-first` | Vertical slices: UI + API + data working together before broadening |
+| `ux-design` | UX framework for information-dense apps |
+| `sprint` | Ticket workflow: pre-flight, plan with your approval, implement, test, UAT, commit |
+| `automate` | Chains the skills into an autonomous pipeline with escalation points |
+| `uat` | Testing with triage: bug, new feature, or docs gap |
+| `session-end` | Commits, pushes, updates the CLAUDE.md handoff, updates Linear, captures session friction |
+| `retro` | Reviews captured friction and proposes governance changes; you approve each one |
 
-The flow: **Requirements** → **Design-First** + **UX Design** → **Sprint** → **UAT** → **Session End** → **Retro**
+## How to use it
 
-Or: **define what to build → design it → build it → test it → wrap up → improve how you work.**
+A normal day looks like this:
 
-## How to Use This
+1. **Orient.** `/session-start` reads the handoff your last session left in `CLAUDE.md` and tells you where things stand.
+2. **Define.** `/requirements` turns an idea into a scoped ticket. For UI work, `/design-first` and `/ux-design` shape the first slice.
+3. **Build and test.** `/sprint` works the ticket with an approval gate before implementation. `/uat` triages what you find: bugs get fixed, new ideas go to the backlog.
+4. **Wrap up.** `/session-end` commits, pushes, rewrites the `CLAUDE.md` handoff sections, updates the ticket, and captures the session's friction.
+5. **Improve.** `/retro` (this project) or `/retro global` (every project on the machine) reads the captured friction and proposes concrete changes to your rules and to these skills. Nothing is applied without your approval.
 
-### Option 1: Use the skills as prompt templates
+You don't need every skill every session. Most sessions are `/session-start`, normal work, `/session-end`.
 
-The simplest approach. Open any skill file in `skills/`, copy the content, and paste it into your AI coding tool at the start of a session. The skill documents are written as instructions any AI coding agent can follow.
+## The policy layer
 
-### Option 2: Use your tool's persistent instruction system
+The skills are the procedures. The policy layer is the set of rules the agent follows every session, and that lives in your own `CLAUDE.md`. `policy/POLICY.md` is a stack-agnostic starting point: copy it into `~/.claude/CLAUDE.md` and adapt it. Several skills assume its conventions (feature branches, conventional commits, tests before commit, use the configured ticketing integration).
 
-Most AI coding tools support a persistent instruction file that loads every session. Copy `policy/POLICY.md` into whatever your tool uses for this. Copy skills into your tool's skill or prompt system if it has one, or keep them as paste-in templates.
+## The memory loop
 
-## Folder Structure
+`session-end` and `retro` form a push/pull loop that makes the workflow improve itself from evidence rather than opinion:
+
+- **Push.** At wrap-up, `session-end` runs `scripts/retro-capture.py --session --semantic`. The script reads this session's transcript and records mechanical friction (tool errors, failed commands) to `~/.claude/insights/friction/<project>.md`. If the session had at least three new turns, it also runs one semantic pass that summarises repeated corrections, rework, and stated preferences.
+- **Pull.** `retro` first runs the same script with `--scan` as a safety net for sessions you forgot to wrap up, then reads every friction log and your `CLAUDE.md` files. At global scope it consolidates cross-project learnings into `~/.claude/insights/learned-rules.md`, with provenance and a ledger, and can propose edits to the skills themselves.
+
+Friction logs are treated as untrusted data by both the script and the skill: the semantic output is sanitised, semantic entries are weighted below mechanical ones, and nothing derived from them is promoted without your explicit confirmation.
+
+## What the plugin runs and where data goes
+
+Everything stays on your machine. Nothing is sent to any third-party service.
+
+- The skills are Markdown instructions. They run ordinary `git` commands and, where you have the Linear MCP connector configured, use it for ticket updates. The plugin bundles no MCP server.
+- `scripts/retro-capture.py` is a Python 3 script with no third-party dependencies. It reads transcripts under `~/.claude/projects/`, writes under `~/.claude/insights/`, and keeps a small progress file there so nothing is counted twice. For the semantic pass it invokes your locally installed `claude` CLI once, in print mode with model `claude-sonnet-4-6`, hard-capped at 60 seconds. That call goes through your own Claude account like any other session. If the CLI is not on your PATH the pass is skipped and retried next time.
+
+## Requirements
+
+- Claude Code with `git`, `python3`, and the `claude` CLI on your PATH. The skills also load on claude.ai, but `session-end` and `retro` need a terminal.
+- A `CLAUDE.md` in each project. `session-end` maintains four sections in it: Current Phase, Known Issues, Last Session, Known Gotchas. `session-start` reads them. The sections are created if missing.
+- Optional: the Linear MCP connector for the ticket steps in `requirements`, `sprint`, and `session-end`. Without it those steps are skipped.
+
+## Optional controls (bring your own hooks)
+
+The plugin ships no hooks, so it never changes how your editor or shell behaves. If you want the controls layer, add these two to `~/.claude/settings.json` (or a project's `.claude/settings.json`). They only run `git` and `stat`:
+
+- **Branch protection** refuses file edits while on `main`/`master`, so the agent creates a feature branch first.
+- **Session-end guard** warns, when the session stops, about uncommitted changes, unpushed commits, and a `CLAUDE.md` that hasn't been updated this session.
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "B=$(git branch --show-current 2>/dev/null); if [ \"$B\" = main ] || [ \"$B\" = master ]; then echo '{\"block\": true, \"message\": \"Cannot edit files on main/master. Create a feature branch first: git checkout -b feat/<ticket-id>-<description>\"}'; exit 2; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "D=$(git status --porcelain 2>/dev/null | head -20); if [ -n \"$D\" ]; then echo '⚠️  Uncommitted work:'; echo \"$D\"; echo 'Commit or stash before stopping.'; fi; A=$(git rev-list --count @{upstream}..HEAD 2>/dev/null); if [ -n \"$A\" ] && [ \"$A\" != 0 ]; then echo \"⚠️  $A commit(s) not pushed. Run: git push\"; fi; if [ -f CLAUDE.md ]; then M=$(stat -c %Y CLAUDE.md 2>/dev/null || stat -f %m CLAUDE.md 2>/dev/null); if [ $(( $(date +%s) - M )) -gt 7200 ]; then echo '⚠️  CLAUDE.md not updated this session. Run /session-end.'; fi; fi; if [ -z \"$D\" ]; then echo '✅ Working tree is clean.'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The `stat` call tries the GNU form first and falls back to the BSD form, so the same snippet works on Linux and macOS.
+
+## Folder structure
 
 ```
-process-over-prompts/
-├── README.md
-├── LICENSE
-│
-├── policy/
-│   └── POLICY.md                    ← Global rules (adapt to your tool's config)
-│
-└── skills/
-    ├── sprint/SKILL.md              ← Full ticket workflow (single + batch)
-    ├── requirements/SKILL.md        ← Idea → structured ticket
-    ├── uat/SKILL.md                 ← Testing report + triage
-    ├── design-first/SKILL.md        ← Wireframe before logic
-    ├── ux-design/SKILL.md           ← UX framework for complex apps
-    ├── session-end/SKILL.md         ← Clean session wrap-up
-    └── retro/SKILL.md               ← Improve your own process
+.claude-plugin/
+├── plugin.json                   ← plugin manifest
+└── marketplace.json              ← lets you install straight from this repo
+skills/<name>/SKILL.md            ← the ten skills
+policy/POLICY.md                  ← starting rules for your own CLAUDE.md
+scripts/retro-capture.py          ← friction capture, run by /session-end and /retro
+install.sh                        ← plain-files installer (optional)
+tests/                            ← regression tests for retro-capture.py
 ```
 
-## How It Works Day-to-Day
+## Where this came from
 
-You don't invoke every skill every session. Most of the time you just work normally — your policy file protects you in the background.
+I'm not a developer. I'm a product leader at a bank who runs CRM systems and started building apps with Claude Code. After a few months I analysed my own sessions: the agent jumped into the wrong approach before researching, sessions were lost to tooling discovered mid-task, and automated checks would have caught rounds of buggy code. The friction wasn't the model. It was the absence of process. So I applied what I already knew from enterprise IT: policy, procedures, controls, and segregation of duties, applied to an AI agent.
 
-When you want the full structured workflow, use the skill that fits:
+## Licence
 
-- Working through a ticket? → **Sprint**
-- New idea that needs scoping? → **Requirements**
-- Finished building, need to test? → **UAT**
-- Starting a new screen? → **Design-First**
-- Done for the day? → **Session End**
-- Want to improve your setup? → **Retro**
-
-Think of it like a workshop: safety goggles are always on (policy). Power tools are on the wall (skills). You grab the one you need.
-
-## License
-
-MIT — use it, adapt it, share it.
+MIT. Use it, adapt it, share it.
