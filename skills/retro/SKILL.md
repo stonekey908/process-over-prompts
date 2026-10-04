@@ -170,7 +170,7 @@ Reached either from an interactive choice in Phase 2 (Apply all / Walk through, 
 **Provenance tag** (global entries):
 ```
 - **Gotcha:** headless Chrome hangs on tall windows → render ≤2400px
-  <!-- sources: ClaudeScripts, SchoolSync · added 2026-06-20 · last-seen 2026-06-20 -->
+  <!-- sources: MyApp, OtherApp · added 2026-06-20 · last-seen 2026-06-20 -->
 ```
 
 **Harvest ledger** `~/.claude/insights/harvest-ledger.md` (global): one row per entry — `Entry | Source project(s) | Added | Last seen | Action`. On every sweep bump **Last seen** for any entry that reappears (the decay signal).
