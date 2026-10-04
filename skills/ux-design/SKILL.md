@@ -11,7 +11,7 @@ Before writing any code, apply the framework below to decide what to show, when 
 
 ## Core Philosophy: Nothing Hidden, Nothing Overwhelming
 
-The central tension in information-dense apps: **all the information matters, but showing it all at once destroys usability.** The solution is never to hide information — it's to create a clear hierarchy so users can drill from overview to detail on their own terms.
+The central tension in information-dense apps: **all the information matters, but showing it all at once destroys usability.** The solution is never to hide information — it's to create a clear hierarchy so users can move from overview to detail on their own terms.
 
 Think of it like a building: lobby has a directory, each floor has a corridor, each corridor has doors. Everything is accessible. Nothing is hidden. But you're never standing in every room at once.
 
@@ -36,7 +36,7 @@ Never flatten complex information into one scrollable page. Layer it:
 
 **Before coding any screen, map this table:**
 
-| Screen | Layer 0 (glance) | Layer 1 (one tap) | Layer 2 (drill deep) |
+| Screen | Layer 0 (glance) | Layer 1 (one tap) | Layer 2 (full detail) |
 |--------|------------------|-------------------|----------------------|
 
 If Layer 0 has more than 5-6 items, you're showing too much. If Layer 2 is empty, the screen isn't complex enough for this framework.
@@ -108,7 +108,7 @@ List on left (fixed, filterable), detail on right (flexible). Selecting loads de
 Sidebar nav (always visible) + navigation panel (collapsible) + main content (flexible) + context panel (on-demand). Floating elements slide over, never push layout.
 
 ### Tabbed Dashboard
-Summary metrics (clickable → drill into items) + visualisations (clickable elements) + detail sections. Tabs persist scroll position. Drill-downs expand inline, not new pages.
+Summary metrics (clickable → open the items) + visualisations (clickable elements) + detail sections. Tabs persist scroll position. Detail views expand inline, not new pages.
 
 ### Card Grid / Directory
 Sticky search and filters at top. Standard card anatomy. Entire card is click target. Grid responds to screen width.

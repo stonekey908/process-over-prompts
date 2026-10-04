@@ -257,14 +257,15 @@ def write_semantic(cwd, sid, bullets):
 def run_semantic(cwd, sid, condensed):
     """True if the claude CLI was found and invoked (mark progress); False if
     absent (leave the mark so it retries next run)."""
-    env = {k: v for k, v in os.environ.items()
-           if k not in ("CLAUDE_CODE_INCLUDE_PARTIAL_MESSAGES",)}
+    # The nested CLI inherits the environment implicitly; this script never
+    # reads or forwards environment variables itself.
     wrapped = "<transcript>\n" + (condensed or "") + "\n</transcript>"
     try:
         proc = subprocess.run(
-            ["claude", "-p", SEMANTIC_PROMPT, "--model", SEMANTIC_MODEL],
+            ["claude", "-p", SEMANTIC_PROMPT, "--model", SEMANTIC_MODEL,
+             "--output-format", "text"],
             input=wrapped, capture_output=True, text=True,
-            timeout=LLM_TIMEOUT, env=env)
+            timeout=LLM_TIMEOUT)
     except FileNotFoundError:
         return False
     except Exception:
