@@ -10,7 +10,7 @@ Run this before ending any session. It ensures nothing is left behind.
 ## Phase 0: Trigger check (avoid premature or duplicate runs)
 
 1. **Wait for an explicit "done" signal.** Run only when the user clearly signals they are finished (e.g. "that's it", "I'm done", "wrapping up") — not at the first sign of wind-down conversation. If the user asks a follow-up after you start, the session wasn't over: defer and re-run later.
-2. **Guard against re-entry — HARD stop, not a soft prompt.** If `/session-end` already completed once this session, first check for genuinely new work (new uncommitted changes or new commits since the last run). If there is none, emit exactly one line — *"session-end already completed this session — nothing to do"* — and exit. Do NOT re-run the commit/push/summary pass or re-emit a handoff summary. Only if there IS new work do you proceed, and then confirm with the user that this is a genuine second wrap-up. (Observed: the soft guard was repeatedly acknowledged-and-overridden, producing redundant full re-runs.)
+2. **Guard against re-entry — HARD stop, not a soft prompt.** If `/session-end` already completed once this session, first check for genuinely new work (new uncommitted changes or new commits since the last run). If there is none, emit exactly one line — *"session-end already completed this session — nothing to do"* — and exit. Do NOT re-run the commit/push/summary pass or re-emit a handoff summary. If there IS new work, proceed without asking — but run only the delta: commit and push the new work, add to Last Session (don't rewrite it), update Linear for tickets touched since the first run, capture friction, and give a short delta summary, not a full second pass. (Observed: the soft guard was repeatedly acknowledged-and-overridden, producing redundant full re-runs; then legitimate second wrap-ups — e.g. a submission after the first wrap-up — paid for a confirmation prompt and a full re-run.)
 
 ## Phase 1: Code State Check
 
@@ -79,7 +79,8 @@ This section is removed once the UAT interview is completed or the ticket is clo
 1. **If a ticket was being worked on:**
    - If work is complete: update status to `Done` or `In Review`. Add closing comment with: what was implemented, files changed, any follow-up items.
    - If work is incomplete: keep status as `In Progress`. Add comment with: what was done, what remains, estimated remaining effort, any blockers.
-2. **If no ticket was being worked on:** skip this phase.
+2. **Loose ends found along the way.** List every gap, limitation or bug noticed this session that no ticket covers (including "honest gaps" carried in from a previous handoff). Ask once, batched, for each: **draft a ticket** / **already tracked** (name it) / **skip** (say why). Create a ticket only on the user's yes. Never carry the same gap into a second session's handoff without a ticket or an explicit skip — flagging without filing is a dead end. (Observed: one gap re-flagged across four sessions; a known limitation never filed, then hit in production.)
+3. **If no ticket was being worked on:** skip step 1, but still do step 2.
 
 ## Phase 4: Capture session friction
 

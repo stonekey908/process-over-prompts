@@ -22,7 +22,7 @@ Run this at the start of any session. It reads the handoff notes that `/session-
    - Check if changes look like WIP from a crashed session.
    - Flag to the user: "Found uncommitted changes — want to commit, stash, or continue working on them?"
 4. **If the branch doesn't match the Last Session branch:** note the discrepancy.
-5. **Check for unpulled changes** — run `git fetch && git status` to see if remote is ahead.
+5. **Check for unpulled changes and branch drift** — run `git fetch && git status` to see if remote is ahead. Then report if local `main` is behind `origin/main` (`git rev-list --count main..origin/main` — fast-forward before branching), and list local branches with commits not on `main` (`git branch --no-merged main`) so an unmerged release/fix branch is surfaced now, not rediscovered mid-session. (Observed: local `main` 16 commits stale; an unmerged release branch causing branching ambiguity.)
 6. **Read Known Gotchas** — if the project CLAUDE.md has a `## Known Gotchas` section, read it. These are build/deploy/environment issues discovered in previous sessions. Keep them in mind during implementation to avoid repeating solved problems.
 7. **Quick Build Health Check** — if the project has a type-check command (e.g., `npx tsc --noEmit`), run it. If there's a known build or dev-server command in CLAUDE.md or `package.json`, verify it works. Report any failures alongside the session summary. Do NOT attempt fixes — just flag them so the user knows before starting sprint work. Keep this under 30 seconds.
 8. **Verify MCP connectivity** — attempt one read-only MCP call (e.g., list Linear teams). If it fails:
